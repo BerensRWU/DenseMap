@@ -2,7 +2,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import cv2
-
+from depth_map import dense_map
 # Class for the calibration matrices for KITTI data
 class Calibration:
     def __init__(self, calib_filepath):
