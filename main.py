@@ -3,6 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import cv2
 from depth_map import dense_map
+
 # Class for the calibration matrices for KITTI data
 class Calibration:
     def __init__(self, calib_filepath):
@@ -50,26 +51,27 @@ class Calibration:
         mask = (points_2d[:,0] >= 0) & (points_2d[:,0] <= 1242) & (points_2d[:,1] >= 0) & (points_2d[:,1] <= 375)
         mask = mask & (rect_pts[:,2] > 2)
         return points_2d[mask,0:2], mask
-        
-root = "data/"
-image_dir = os.path.join(root, "image_2")
-velodyne_dir = os.path.join(root, "velodyne")
-calib_dir = os.path.join(root, "calib")
-# Data id
-cur_id = 21
-# Loading the image
-img0 = cv2.imread(os.path.join(image_dir, "%06d.png" % cur_id))
-# Loading the LiDAR data
-lidar0  = np.fromfile(os.path.join(velodyne_dir, "%06d.bin" % cur_id), dtype=np.float32).reshape(-1, 4)
-# Loading Calibration
-calib = Calibration(os.path.join(calib_dir, "%06d.txt" % cur_id))
-# From LiDAR coordinate system to Camera Coordinate system
-lidar_rect = calib.lidar2cam(lidar0[:,0:3])
-# From Camera Coordinate system to Image frame
-lidarOnImage, mask = calib.rect2Img(lidar_rect)
-# Concatenate LiDAR position with the intesity (3), with (2) we would have the depth
-lidarOnImage = np.concatenate((lidarOnImage, lidar0[mask,2].reshape(-1,1)), 1)
 
-out = dense_map(lidarOnImage.T, img0.shape[1],img0.shape[0], 1)
-plt.figure(figsize=(20,40))
-plt.imsave("intensity_map_1.png", out)
+if __name__ == "__main__":
+    root = "data/"
+    image_dir = os.path.join(root, "image_2")
+    velodyne_dir = os.path.join(root, "velodyne")
+    calib_dir = os.path.join(root, "calib")
+    # Data id
+    cur_id = 21
+    # Loading the image
+    img = cv2.imread(os.path.join(image_dir, "%06d.png" % cur_id))
+    # Loading the LiDAR data
+    lidar = np.fromfile(os.path.join(velodyne_dir, "%06d.bin" % cur_id), dtype=np.float32).reshape(-1, 4)
+    # Loading Calibration
+    calib = Calibration(os.path.join(calib_dir, "%06d.txt" % cur_id))
+    # From LiDAR coordinate system to Camera Coordinate system
+    lidar_rect = calib.lidar2cam(lidar[:,0:3])
+    # From Camera Coordinate system to Image frame
+    lidarOnImage, mask = calib.rect2Img(lidar_rect)
+    # Concatenate LiDAR position with the intesity (3), with (2) we would have the depth
+    lidarOnImage = np.concatenate((lidarOnImage, lidar[mask,2].reshape(-1,1)), 1)
+
+    out = dense_map(lidarOnImage.T, img.shape[1], img.shape[0], 1)
+    plt.figure(figsize=(20,40))
+    plt.imsave("depth_map_%06d.png" cur_id, out)
