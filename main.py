@@ -74,4 +74,4 @@ if __name__ == "__main__":
 
     out = dense_map(lidarOnImage.T, img.shape[1], img.shape[0], 1)
     plt.figure(figsize=(20,40))
-    plt.imsave("depth_map_%06d.png" cur_id, out)
+    plt.imsave("depth_map_%06d.png", cur_id, out)
