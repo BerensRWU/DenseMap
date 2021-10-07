@@ -70,8 +70,8 @@ if __name__ == "__main__":
     # From Camera Coordinate system to Image frame
     lidarOnImage, mask = calib.rect2Img(lidar_rect)
     # Concatenate LiDAR position with the intesity (3), with (2) we would have the depth
-    lidarOnImage = np.concatenate((lidarOnImage, lidar[mask,2].reshape(-1,1)), 1)
+    lidarOnImage = np.concatenate((lidarOnImage, lidar_rect[mask,2].reshape(-1,1)), 1)
 
     out = dense_map(lidarOnImage.T, img.shape[1], img.shape[0], 1)
     plt.figure(figsize=(20,40))
-    plt.imsave("depth_map_%06d.png", cur_id, out)
+    plt.imsave("depth_map_%06d.png" % cur_id, out)
