@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from geometry_utils import *
 
+cur_id = 0
+
 root = "data/"
 image_dir = os.path.join(root, "image_2")
 depth_dir = os.path.join(root, "depth_map")
