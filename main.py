@@ -41,14 +41,14 @@ class Calibration:
         return pts_3d_cam_rec
     
     # From Camera Coordinate system to Image frame
-    def rect2Img(self, rect_pts):
+    def rect2Img(self, rect_pts, img_width, img_height):
         n = rect_pts.shape[0]
         points_hom = np.hstack((rect_pts, np.ones((n,1))))
         points_2d = np.dot(points_hom, np.transpose(self.P)) # nx3
         points_2d[:,0] /= points_2d[:,2]
         points_2d[:,1] /= points_2d[:,2]
         
-        mask = (points_2d[:,0] >= 0) & (points_2d[:,0] <= 1242) & (points_2d[:,1] >= 0) & (points_2d[:,1] <= 375)
+        mask = (points_2d[:,0] >= 0) & (points_2d[:,0] <= img_width) & (points_2d[:,1] >= 0) & (points_2d[:,1] <= img_height)
         mask = mask & (rect_pts[:,2] > 2)
         return points_2d[mask,0:2], mask
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     # From LiDAR coordinate system to Camera Coordinate system
     lidar_rect = calib.lidar2cam(lidar[:,0:3])
     # From Camera Coordinate system to Image frame
-    lidarOnImage, mask = calib.rect2Img(lidar_rect)
+    lidarOnImage, mask = calib.rect2Img(lidar_rect, img.shape[1], img.shape[0])
     # Concatenate LiDAR position with the intesity (3), with (2) we would have the depth
     lidarOnImage = np.concatenate((lidarOnImage, lidar_rect[mask,2].reshape(-1,1)), 1)
 
